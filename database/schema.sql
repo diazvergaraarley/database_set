@@ -1,59 +1,102 @@
-CREATE TABLE categoria (
-    id_categoria INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+-- =====================================================
+-- BASE DE DATOS
+-- =====================================================
+
+CREATE DATABASE gestion_academica_universidad;
+
+-- =====================================================
+-- TABLA ESTUDIANTES
+-- =====================================================
+
+CREATE TABLE estudiantes (
+
+    id_estudiante SERIAL PRIMARY KEY,
+
+    nombre_completo VARCHAR(100) NOT NULL,
+
+    correo_electronico VARCHAR(100) NOT NULL UNIQUE,
+
+    genero VARCHAR(20)
+        CHECK (genero IN ('Masculino','Femenino','Otro')),
+
+    identificacion VARCHAR(20) NOT NULL UNIQUE,
+
+    carrera VARCHAR(100) NOT NULL,
+
+    fecha_nacimiento DATE NOT NULL,
+
+    fecha_ingreso DATE NOT NULL
+
 );
 
-CREATE TABLE producto (
-    id_producto INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- =====================================================
+-- TABLA DOCENTES
+-- =====================================================
+
+CREATE TABLE docentes (
+
+    id_docente SERIAL PRIMARY KEY,
+
+    nombre_completo VARCHAR(100) NOT NULL,
+
+    correo_institucional VARCHAR(100) NOT NULL UNIQUE,
+
+    departamento_academico VARCHAR(100) NOT NULL,
+
+    anios_experiencia INT NOT NULL
+        CHECK (anios_experiencia >= 0)
+
+);
+
+-- =====================================================
+-- TABLA CURSOS
+-- =====================================================
+
+CREATE TABLE cursos (
+
+    id_curso SERIAL PRIMARY KEY,
+
     nombre VARCHAR(100) NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
-    id_categoria INTEGER NOT NULL,
-    FOREIGN KEY (id_categoria) REFERENCES categoria(id_categoria)
+
+    codigo VARCHAR(20) NOT NULL UNIQUE,
+
+    creditos INT NOT NULL
+        CHECK (creditos > 0),
+
+    semestre INT NOT NULL
+        CHECK (semestre >= 1),
+
+    id_docente INT NOT NULL,
+
+    FOREIGN KEY (id_docente)
+        REFERENCES docentes(id_docente)
+        ON DELETE RESTRICT
+
 );
 
-CREATE TABLE cliente (
-    id_cliente INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    ciudad VARCHAR(100) NOT NULL
-);
+-- =====================================================
+-- TABLA INSCRIPCIONES
+-- =====================================================
 
-CREATE TABLE asesor (
-    id_asesor INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
-);
+CREATE TABLE inscripciones (
 
-CREATE TABLE sucursal (
-    id_sucursal INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    ciudad VARCHAR(100) NOT NULL
-);
+    id_inscripcion SERIAL PRIMARY KEY,
 
-CREATE TABLE metodo_pago (
-    id_metodo_pago INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL
-);
+    id_estudiante INT NOT NULL,
 
-CREATE TABLE factura (
-    id_factura VARCHAR(20) PRIMARY KEY,
-    fecha DATE NOT NULL,
-    id_cliente INTEGER NOT NULL,
-    id_asesor INTEGER NOT NULL,
-    id_sucursal INTEGER NOT NULL,
-    id_metodo_pago INTEGER NOT NULL,
+    id_curso INT NOT NULL,
 
-    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
-    FOREIGN KEY (id_asesor) REFERENCES asesor(id_asesor),
-    FOREIGN KEY (id_sucursal) REFERENCES sucursal(id_sucursal),
-    FOREIGN KEY (id_metodo_pago) REFERENCES metodo_pago(id_metodo_pago)
-);
+    fecha_inscripcion DATE NOT NULL,
 
-CREATE TABLE detalle_factura (
-    id_factura VARCHAR(20),
-    id_producto INTEGER,
-    cantidad INTEGER NOT NULL,
+    calificacion_final DECIMAL(4,2)
+        CHECK (calificacion_final BETWEEN 0 AND 5),
 
-    PRIMARY KEY (id_factura, id_producto),
+    FOREIGN KEY (id_estudiante)
+        REFERENCES estudiantes(id_estudiante)
+        ON DELETE CASCADE,
 
-    FOREIGN KEY (id_factura) REFERENCES factura(id_factura),
-    FOREIGN KEY (id_producto) REFERENCES producto(id_producto)
+    FOREIGN KEY (id_curso)
+        REFERENCES cursos(id_curso)
+        ON DELETE CASCADE
+
 );
