@@ -17,7 +17,7 @@ CREATE TABLE estudiantes (
     correo_electronico VARCHAR(100) NOT NULL UNIQUE,
 
     genero VARCHAR(20)
-        CHECK (genero IN ('Masculino','Femenino','Otro')),
+        CHECK (genero IN ('Masculino', 'Femenino', 'Otro')),
 
     identificacion VARCHAR(20) NOT NULL UNIQUE,
 
@@ -100,3 +100,40 @@ CREATE TABLE inscripciones (
         ON DELETE CASCADE
 
 );
+
+-- =====================================================
+-- MODIFICAR TABLA
+-- =====================================================
+
+ALTER TABLE estudiantes
+
+ADD COLUMN estado_academico VARCHAR(20);
+
+-- =====================================================
+-- CREAR VISTA
+-- =====================================================
+
+CREATE VIEW vista_historial_academico AS
+
+SELECT
+
+    e.nombre_completo AS estudiante,
+
+    c.nombre AS curso,
+
+    d.nombre_completo AS docente,
+
+    c.semestre,
+
+    i.calificacion_final
+
+FROM inscripciones i
+
+JOIN estudiantes e
+ON i.id_estudiante = e.id_estudiante
+
+JOIN cursos c
+ON i.id_curso = c.id_curso
+
+JOIN docentes d
+ON c.id_docente = d.id_docente;
